@@ -1,0 +1,33 @@
+{
+  "source": {
+    "include": [
+      "C:\\Users\\mongi\\Desktop\\Nuova cartella\\2e ver\\public\\src\\core",
+      "C:\\Users\\mongi\\Desktop\\Nuova cartella\\2e ver\\public\\src\\ui\\screens",
+      "C:\\Users\\mongi\\Desktop\\Nuova cartella\\2e ver\\public\\src\\ui\\components",
+      "C:\\Users\\mongi\\Desktop\\Nuova cartella\\2e ver\\public\\src\\utils",
+      "C:\\Users\\mongi\\Desktop\\Nuova cartella\\2e ver\\server.js"
+    ],
+    "includePattern": ".+\\.js$",
+    "excludePattern": "(node_modules|docs|\\.git)"
+  },
+  "opts": {
+    "destination": "C:\\Users\\mongi\\Desktop\\Nuova cartella\\2e ver\\docs",
+    "recurse": true,
+    "template": "node_modules/better-docs",
+    "encoding": "utf8"
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "markdown": {
+    "idInHeadings": true
+  },
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": true,
+    "default": {
+      "outputSourceFiles": true,
+      "staticFiles": "C:\\Users\\mongi\\Desktop\\Nuova cartella\\2e ver\\docs_assets"
+    }
+  }
+}

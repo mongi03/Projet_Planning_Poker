@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "../../test-plannerpoking"
+		},
+		{
+			"path": "../../planning-poker-web"
+		}
+	],
+	"settings": {}
+}

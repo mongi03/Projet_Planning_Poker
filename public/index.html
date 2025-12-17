@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planning Poker Pro</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <link rel="stylesheet" href="style/style.css">
+<script type="module" src="src/app.js"></script>
+
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1>🎰 Planning Poker Pro</h1>
+                <div style="font-size: 14px; display: flex; align-items: center;">
+                    <div class="connection-status" id="connectionStatus"></div>
+                    <span id="connectionText">Déconnecté</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- MENU SCREEN -->
+        <div id="menuScreen" class="screen active">
+            <div class="menu-screen">
+                <div class="form-title">Planning Poker</div>
+
+                <div class="form-group">
+                    <label for="playerName">Votre pseudo</label>
+                    <input type="text" id="playerName" placeholder="Ex: Alice" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="gameMode">Mode de jeu</label>
+                    <select id="gameMode" required>
+                        <option value="">Choisir un mode...</option>
+                        <option value="strict">Mode Strict (Unanimité)</option>
+                        <option value="median">Mode Médiane</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="participantCount">Nombre de participants</label>
+                    <select id="participantCount" required>
+                        <option value="">Choisir le nombre...</option>
+                        <option value="2">2 participants</option>
+                        <option value="3">3 participants</option>
+                        <option value="4">4 participants</option>
+                        <option value="5">5 participants</option>
+                        <option value="6">6 participants</option>
+                        <option value="7">7 participants</option>
+                        <option value="8">8 participants</option>
+                        <option value="9">9 participants</option>
+                        <option value="10">10 participants</option>
+                    </select>
+                </div>
+
+                <div class="button-group three-cols">
+                    <button class="btn-primary" onclick="app.createNewGame()">Créer une partie</button>
+                    <button class="btn-secondary" onclick="app.showJoinForm()">Rejoindre</button>
+                    <button class="btn-secondary" style="background: #10b981;" onclick="app.showResumeForm()">📋 Reprendre une partie</button>
+                </div>
+            </div>
+
+            <div id="joinForm" class="menu-screen hidden" style="margin-top: 20px;">
+                <div class="form-title">Rejoindre une partie</div>
+
+                <div class="form-group">
+                    <label for="playerNameJoin">Votre pseudo</label>
+                    <input type="text" id="playerNameJoin" placeholder="Ex: Bob" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="sessionCode">Code de session</label>
+                    <input type="text" id="sessionCode" placeholder="Ex: XY2KZL" maxlength="6" style="text-transform: uppercase;" required>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="app.joinGame()">Rejoindre</button>
+                    <button class="btn-secondary" onclick="app.showMenuScreen()">Retour</button>
+                </div>
+
+                <div id="joinError" class="error hidden"></div>
+            </div>
+
+            <!-- RESUME FORM -->
+            <div id="resumeForm" class="menu-screen hidden" style="margin-top: 20px;">
+                <div class="form-title">Reprendre une partie</div>
+
+                <div class="form-group">
+                    <label for="playerNameResume">Votre pseudo</label>
+                    <input type="text" id="playerNameResume" placeholder="Ex: Alice" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="resumeBacklogFile">Charger le backlog JSON</label>
+                    <button type="button" class="btn-secondary" onclick="document.getElementById('resumeFile').click()" style="width: 100%; background: #10b981; margin-bottom: 10px;">
+                        📁 Sélectionner le fichier
+                    </button>
+                    <input type="file" id="resumeFile" accept=".json" style="display: none;" onchange="app.loadResumeFile()">
+                    <div id="resumeFileDisplay" style="margin-top: 10px; padding: 10px; background: var(--color-bg); border-radius: var(--radius); font-size: 13px; color: var(--color-text-light);">
+                        Aucun fichier sélectionné
+                    </div>
+                </div>
+
+                <div id="resumeValidation" style="margin-top: 10px;"></div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="resumeStartBtn" onclick="app.startResume()" disabled>Reprendre la partie</button>
+                    <button class="btn-secondary" onclick="app.showMenuScreen()">Retour</button>
+                </div>
+
+                <div id="resumeError" class="error hidden"></div>
+            </div>
+        </div>
+
+        <!-- SETUP SCREEN -->
+        <div id="setupScreen" class="screen">
+            <div class="menu-screen">
+                <div class="form-title">Configuration</div>
+
+                <div class="session-info">
+                    <div style="font-size: 12px; color: var(--color-text-light);">Code de session</div>
+                    <div class="session-code" id="setupSessionCode"></div>
+                    <div style="font-size: 12px; color: var(--color-text-light); margin-top: 8px;">Partagez ce code avec vos joueurs</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="backlogJson">Backlog (JSON) <span style="color: var(--color-text-light); font-weight: normal;">(optionnel)</span></label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button type="button" class="btn-secondary" onclick="document.getElementById('backlogFile').click()" style="flex: 1; background: #10b981;">
+                            📁 Charger un fichier JSON
+                        </button>
+                        <input type="file" id="backlogFile" accept=".json" style="display: none;" onchange="app.loadBacklogFile()">
+                    </div>
+                    <textarea id="backlogJson" placeholder="[{&quot;id&quot;: 1, &quot;name&quot;: &quot;Tâche&quot;, &quot;description&quot;: &quot;Desc&quot;}, ...]" style="height: 150px;"></textarea>
+                    <div style="font-size: 12px; color: var(--color-text-light); margin-top: 8px;">OU ajouter les tâches manuellement après.</div>
+                    <div id="backlogValidation" style="margin-top: 10px;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: 600; color: var(--color-primary);">
+                        Joueurs en attente 
+                        <span id="participantCounter" style="font-size: 12px; color: var(--color-text-light); background: #fef3c7; padding: 4px 8px; border-radius: 4px;">(0/0)</span>
+                    </label>
+                    <div id="waitingPlayers" class="waiting-players-container">
+                        <div style="color: var(--color-text-light); text-align: center; padding: 20px;">
+                            En attente de joueurs...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="startGameBtn" onclick="app.startGame()" disabled>Démarrer le jeu</button>
+                    <button class="btn-secondary" onclick="app.cancelSetup()">Annuler</button>
+                </div>
+
+                <div id="setupError" class="error hidden"></div>
+            </div>
+        </div>
+
+        <!-- RESUME SUMMARY SCREEN -->
+        <div id="resumeSummaryScreen" class="screen">
+            <div class="menu-screen">
+                <div class="form-title">📊 Résumé de la partie</div>
+
+                <div class="session-info">
+                    <div style="font-size: 12px; color: var(--color-text-light);">Code de session</div>
+                    <div class="session-code" id="summarySessionCode"></div>
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <div style="font-weight: 600; margin-bottom: 15px; color: var(--color-primary);">✅ Tâches complétées:</div>
+                    <div id="completedTasksList" style="max-height: 300px; overflow-y: auto;">
+                        <div style="color: var(--color-text-light); text-align: center; padding: 20px;">Aucune tâche complétée</div>
+                    </div>
+                </div>
+
+                <div style="margin: 20px 0; padding: 15px; background: var(--color-bg); border-radius: var(--radius); border-left: 4px solid var(--color-warning);">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: var(--color-warning);">📋 Tâche en cours:</div>
+                    <div id="currentTaskSummary" style="color: var(--color-text-light);">
+                        <div style="font-weight: 600; margin-bottom: 8px;" id="summaryCurrentTaskName"></div>
+                        <div style="font-size: 13px;" id="summaryCurrentTaskDesc"></div>
+                        <div style="margin-top: 10px; font-size: 12px;">
+                            <strong>Dernier vote:</strong> <span id="summaryLastVote" style="color: var(--color-primary); font-weight: 600;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group" style="margin-top: 30px;">
+                    <button class="btn-primary btn-full" onclick="app.continueFromResumeSummary()" style="grid-column: 1 / -1;">
+                        🎮 Continuer le vote
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESUME WAITING SCREEN -->
+        <div id="resumeWaitingScreen" class="screen hidden">
+            <h2>⏳ En attente des joueurs</h2>
+            <div class="session-info">
+                <div>Code de session (généré)</div>
+                <div class="session-code" id="resumeSessionCode"></div>
+            </div>
+
+            <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;">
+                Partie restaurée - En attente que tous les joueurs se reconnectent
+            </div>
+
+            <div>
+                <div style="font-weight: 600; margin-bottom: 15px;">Participants attendus:</div>
+                <div id="resumeParticipantsList"></div>
+
+                <!-- ✅ BARRE DE PROGRESSION -->
+                <div style="margin: 20px 0;">
+                <div style="background: #e5e7eb; height: 24px; border-radius: 4px; overflow: hidden;">
+                    <div id="resumeProgressFill" style="background: #10b981; height: 100%; width: 0%; transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 8px; font-size: 14px; font-weight: 600; color: #334155;" id="resumeProgressText">0 / 0 joueurs connectés</div>
+                </div>
+
+                <!-- ✅ BOUTONS -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px;">
+                <button id="startResumedGameBtn" class="btn-primary" onclick="window.app.startResumedGame()" disabled>
+                    🎮 Relancer la partie
+                </button>
+                <button class="btn-secondary" onclick="window.app.showMenuScreen()">
+                    Annuler et retour
+                </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ADD TASKS SCREEN -->
+        <div id="addTasksScreen" class="screen">
+            <div class="menu-screen">
+                <div class="form-title">➕ Ajouter les tâches</div>
+
+                <div class="session-info">
+                    <div style="font-size: 12px; color: var(--color-text-light);">Code de session</div>
+                    <div class="session-code" id="addTasksSessionCode"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskName">Nom de la tâche</label>
+                    <input type="text" id="taskName" placeholder="Ex: Ajouter authentification">
+                </div>
+
+                <div class="form-group">
+                    <label for="taskDesc">Description</label>
+                    <textarea id="taskDesc" placeholder="Ex: Implémenter login OAuth2" style="height: 80px;"></textarea>
+                </div>
+
+                <button class="btn-primary" onclick="app.addTask()" style="width: 100%; margin-bottom: 20px;">
+                    ➕ Ajouter une tâche
+                </button>
+
+                <div class="form-group">
+                    <label style="font-weight: 600; color: var(--color-primary);">
+                        Tâches ajoutées (<span id="taskCount">0</span>)
+                    </label>
+                    <div id="tasksList" class="waiting-players-container">
+                        <div style="color: var(--color-text-light); text-align: center;">
+                            Aucune tâche pour le moment
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="startVotingBtn" onclick="app.startVoting()" disabled>
+                        🎮 Commencer à voter
+                    </button>
+                    <button class="btn-secondary" onclick="app.cancelAddTasks()">Retour</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div id="gameScreen" class="screen">
+            <div class="session-info">
+                <div style="font-size: 12px;">Code de session</div>
+                <div class="session-code" id="gameSessionCode"></div>
+            </div>
+
+            <div id="gameNotStartedAlert" class="game-not-started" style="display: none;">
+                ⏳ La partie n'a pas encore de tâches. En attente du créateur pour charger le backlog...
+            </div>
+
+            <div class="game-screen">
+                <div class="players-panel">
+                    <div class="players-title">Joueurs</div>
+                    <div id="playersList"></div>
+                </div>
+
+                <div class="main-panel">
+                    <div id="taskHeader" class="task-header" style="display: none;">
+                        <div class="task-title" id="taskName"></div>
+                        <div class="task-description" id="taskDescription"></div>
+                        <div class="round-badge" id="roundBadge"></div>
+                    </div>
+
+                    <div id="votingSection" style="display: none;">
+                        <div class="voting-progress">
+                            <span id="votingStatus"></span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressBar"></div>
+                            </div>
+                        </div>
+
+                        <div class="cards-grid" id="cardsContainer"></div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button class="btn-secondary" onclick="app.leaveGame()" style="background: #ef4444;">Quitter la partie</button>
+                        </div>
+                    </div>
+
+                    <div id="waitingMessage" style="text-align: center; padding: 60px 20px; color: var(--color-text-light);">
+                        <div style="font-size: 18px; margin-bottom: 10px;">En attente de tâches...</div>
+                        <div style="font-size: 14px;">Le créateur doit charger un backlog pour commencer.</div>
+                    </div>
+                </div>
+
+                <div class="players-panel">
+                    <div class="players-title">Infos</div>
+                    <div style="font-size: 13px; color: var(--color-text-light); line-height: 1.8;">
+                        <div><strong>Mode:</strong> <span id="modeDisplay"></span></div>
+                        <div style="margin-top: 10px;"><strong>Round:</strong> <span id="roundDisplay"></span></div>
+                        <div style="margin-top: 10px;"><strong>Tâche:</strong> <span id="taskProgress"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="resultsScreen" class="screen">
+            <div class="results-screen">
+                <div class="results-title">Résultats du vote - Round <span id="resultsRound"></span></div>
+
+                <div class="task-header">
+                    <div class="task-title" id="resultsTaskName"></div>
+                </div>
+
+                <div class="votes-distribution" id="votesDistribution"></div>
+
+                <div id="unanimityMessage" class="unanimity-message" style="display: none;">
+                    ✅ Unanimité atteinte! Tous les joueurs sont d'accord.
+                </div>
+
+                <div id="extremeVotesDisplay" class="extreme-votes"></div>
+
+                <div class="button-group" style="margin-top: 40px;">
+                    <button class="btn-primary btn-full" id="continueBtn" onclick="app.handleContinue()">Continuer</button>
+                    <button class="btn-secondary btn-full" id="nextRoundBtn" onclick="app.startNewRound()" style="display: none;">Nouveau Round</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TASK COMPLETED SCREEN -->
+        <div id="taskCompletedScreen" class="screen">
+            <div class="task-completed-screen">
+                <div class="task-completed-title">✅ Tâche estimée</div>
+                <div class="task-completed-name" id="completedTaskName"></div>
+
+                <div class="final-value-box">
+                    <div class="final-value-label" id="finalValueLabel"></div>
+                    <div class="final-value-display" id="finalValueDisplay"></div>
+                </div>
+
+                <div class="votes-distribution" id="completedVotesDistribution"></div>
+
+                <div id="completedExtremeVotes" class="extreme-votes"></div>
+
+                <button class="btn-primary" onclick="app.continueToNext()" style="width: 100%; margin-top: 40px;">
+                    Continuer vers la tâche suivante
+                </button>
+            </div>
+        </div>
+
+        <!-- COFFEE BREAK SCREEN -->
+        <div id="coffeeBreakScreen" class="screen">
+            <div class="menu-screen">
+                <div class="form-title">☕ Pause café!</div>
+
+                <div style="text-align: center; font-size: 64px; margin: 40px 0;">
+                    ☕☕☕
+                </div>
+
+                <div class="info" style="margin: 30px 0; font-size: 16px;">
+                    <strong>La partie est mise en pause</strong>
+                    <div style="margin-top: 10px; color: var(--color-text);">
+                        Tous les joueurs ont voté "Pause café"
+                    </div>
+                </div>
+
+                <div id="coffeePlayersList" style="margin: 30px 0; padding: 20px; background: var(--color-bg); border-radius: var(--radius);">
+                    <div style="font-weight: 600; margin-bottom: 15px;">Joueurs en pause:</div>
+                    <div id="coffeePlayersDisplay"></div>
+                </div>
+
+                <div id="downloadSection" style="display: none; margin: 30px 0; padding: 20px; background: var(--color-bg); border-radius: var(--radius); text-align: center;">
+                    <div style="font-weight: 600; margin-bottom: 15px;">Créateur de la partie</div>
+                    <div style="font-size: 14px; color: var(--color-text-light); margin-bottom: 15px;">
+                        Téléchargez le backlog pour relancer la partie plus tard
+                    </div>
+                    <button class="btn-primary" onclick="app.downloadBacklog()" style="width: 100%;">
+                        ⬇️ Télécharger le backlog (JSON)
+                    </button>
+                </div>
+
+                <div class="button-group" style="margin-top: 40px;">
+                    <button class="btn-secondary" onclick="app.leaveGame()" style="grid-column: 1 / -1;">
+                        Quitter la partie
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME OVER SCREEN -->
+        <div id="gameOverScreen" class="screen">
+            <div class="menu-screen">
+                <div class="form-title">✅ Partie terminée!</div>
+
+                <div class="info">
+                    Toutes les tâches ont été estimées. Merci de votre participation!
+                </div>
+
+                <div class="button-group" style="margin-top: 30px;">
+                    <button class="btn-primary" onclick="app.returnToMenu()">Nouvelle partie</button>
+                    <button class="btn-secondary" onclick="window.location.reload()">Quitter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+</body>
+</html>
