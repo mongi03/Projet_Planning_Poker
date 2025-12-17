@@ -507,34 +507,6 @@ npm run test:watch
 # Rapport de couverture
 npm run test:coverage
 </code></pre>
-<h3 id="structure-des-tests">Structure des tests</h3>
-<pre class="prettyprint source"><code>tests/
-├── __tests__/              # Tests intégration
-├── unit/                   # Tests unitaires
-│   ├── CardGrid.test.js
-│   ├── PlayerList.test.js
-│   └── PlanningPokerClient.test.js
-└── integration/            # Tests d'intégration
-    ├── socketHandlers.test.js
-    └── gameFlow.test.js
-</code></pre>
-<h3 id="exemple-de-test">Exemple de test</h3>
-<pre class="prettyprint source lang-javascript"><code>describe('CardGrid', () => {
-  it('should render 11 cards', () => {
-    const container = document.getElementById('cardsContainer');
-    renderCards(app);
-    expect(container.children.length).toBe(11);
-  });
-});
-</code></pre>
-<h3 id="couverture-minimale">Couverture minimale</h3>
-<ul>
-<li><strong>Branches:</strong> 70%</li>
-<li><strong>Functions:</strong> 70%</li>
-<li><strong>Lines:</strong> 70%</li>
-<li><strong>Statements:</strong> 70%</li>
-</ul>
-<hr>
 <h2 id="%F0%9F%93%9A-documentation">📚 Documentation</h2>
 <h3 id="jsdoc">JSDoc</h3>
 <p>Tout le code est documenté avec JSDoc:</p>
@@ -552,7 +524,7 @@ npm run test:coverage
 <h3 id="g%C3%A9n%C3%A9rer-la-documentation">Générer la documentation</h3>
 <pre class="prettyprint source lang-bash"><code># Avec JSDoc (optionnel)
 npm install -g jsdoc
-jsdoc core/ ui/ -d docs/
+npm run docs
 </code></pre>
 <h3 id="fichiers-document%C3%A9s">Fichiers documentés</h3>
 <ul>
@@ -611,30 +583,6 @@ netstat -ano | findstr :3000
 <li>Relancer le serveur: <code>npm start</code></li>
 </ol>
 <hr>
-<h2 id="%F0%9F%9A%80-d%C3%A9ploiement">🚀 Déploiement</h2>
-<h3 id="heroku">Heroku</h3>
-<pre class="prettyprint source lang-bash"><code># 1. Créer une app Heroku
-heroku create my-planning-poker
-
-# 2. Déployer
-git push heroku main
-
-# 3. Ouvrir
-heroku open
-</code></pre>
-<h3 id="docker">Docker</h3>
-<pre class="prettyprint source lang-dockerfile"><code>FROM node:14
-WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
-COPY . .
-EXPOSE 3000
-CMD [&quot;npm&quot;, &quot;start&quot;]
-</code></pre>
-<pre class="prettyprint source lang-bash"><code>docker build -t planning-poker .
-docker run -p 3000:3000 planning-poker
-</code></pre>
-<hr>
 <h2 id="%F0%9F%93%9D-scripts-disponibles">📝 Scripts disponibles</h2>
 <table>
 <thead>
@@ -678,27 +626,6 @@ docker run -p 3000:3000 planning-poker
 <li>[ ] Ajouter des tâches</li>
 <li>[ ] Voter sur les estimations</li>
 <li>[ ] Télécharger les résultats</li>
-</ul>
-<hr>
-<h2 id="%F0%9F%A4%9D-contribution">🤝 Contribution</h2>
-<p>Les contributions sont bienvenues! Pour contribuer:</p>
-<ol>
-<li>Fork le projet</li>
-<li>Créer une branche (<code>git checkout -b feature/AmazingFeature</code>)</li>
-<li>Commit les changements (<code>git commit -m 'Add AmazingFeature'</code>)</li>
-<li>Push vers la branche (<code>git push origin feature/AmazingFeature</code>)</li>
-<li>Ouvrir une Pull Request</li>
-</ol>
-<hr>
-<h2 id="%F0%9F%93%84-license">📄 License</h2>
-<p>Ce projet est licencié sous la MIT License - voir le fichier <code>LICENSE</code> pour plus de détails.</p>
-<hr>
-<h2 id="%F0%9F%91%A8%E2%80%8D%F0%9F%92%BB-support-et-contact">👨‍💻 Support et Contact</h2>
-<p>Pour toute question ou problème:</p>
-<ul>
-<li>📧 Email: support@planningpoker.dev</li>
-<li>🐛 Issues: <a href="https://github.com/yourusername/planning-poker-pro/issues">GitHub Issues</a></li>
-<li>💬 Discussions: <a href="https://github.com/yourusername/planning-poker-pro/discussions">GitHub Discussions</a></li>
 </ul>
 <hr>
 <h2 id="%F0%9F%8E%93-ressources-p%C3%A9dagogiques">🎓 Ressources pédagogiques</h2>
