@@ -2,21 +2,6 @@
 
 **Une application web complète et interactive de Planning Poker utilisant Socket.io, Express.js et JavaScript moderne.**
 
----
-
-## 📋 Table des matières
-
-- [Vue d'ensemble](#vue-densemble)
-- [Fonctionnalités](#fonctionnalités)
-- [Architecture](#architecture)
-- [Installation](#installation)
-- [Utilisation](#utilisation)
-- [Structure du projet](#structure-du-projet)
-- [API REST](#api-rest)
-- [Événements Socket.io](#événements-socketio)
-- [Tests](#tests)
-- [Documentation](#documentation)
-- [Dépannage](#dépannage)
 
 ---
 
