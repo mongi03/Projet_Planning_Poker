@@ -99,6 +99,628 @@
 
 
 
+    <section>
+        <article><h1 id="%F0%9F%8E%AF-planning-poker-pro">🎯 Planning Poker Pro</h1>
+<p><strong>Une application web complète et interactive de Planning Poker utilisant Socket.io, Express.js et JavaScript moderne.</strong></p>
+<hr>
+<h2 id="%F0%9F%93%8B-table-des-mati%C3%A8res">📋 Table des matières</h2>
+<ul>
+<li><a href="#vue-densemble">Vue d'ensemble</a></li>
+<li><a href="#fonctionnalit%C3%A9s">Fonctionnalités</a></li>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#utilisation">Utilisation</a></li>
+<li><a href="#structure-du-projet">Structure du projet</a></li>
+<li><a href="#api-rest">API REST</a></li>
+<li><a href="#%C3%A9v%C3%A9nements-socketio">Événements Socket.io</a></li>
+<li><a href="#tests">Tests</a></li>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#d%C3%A9pannage">Dépannage</a></li>
+</ul>
+<hr>
+<h2 id="%F0%9F%8E%AE-vue-d'ensemble">🎮 Vue d'ensemble</h2>
+<p><strong>Planning Poker Pro</strong> est une application web moderne pour pratiquer l'estimation Planning Poker en équipe distribuée. Elle permet aux équipes agile de voter sur l'estimation des tâches en temps réel via WebSocket.</p>
+<p><strong>Version:</strong> 1.0.0<br>
+<strong>License:</strong> MIT<br>
+<strong>Node.js minimum:</strong> 14.0.0</p>
+<h3 id="caract%C3%A9ristiques-principales%3A">Caractéristiques principales:</h3>
+<ul>
+<li>✅ <strong>Communication en temps réel</strong> avec Socket.io</li>
+<li>✅ <strong>Mode de jeu strict et libre</strong></li>
+<li>✅ <strong>Gestion de session</strong> complète</li>
+<li>✅ <strong>Sauvegarde et restauration</strong> de partie</li>
+<li>✅ <strong>Votes anonymes</strong> avec cartes Fibonacci modifiées</li>
+<li>✅ <strong>Pause café</strong> intégrée</li>
+<li>✅ <strong>Export/Import JSON</strong> du backlog</li>
+</ul>
+<hr>
+<h2 id="%E2%9C%A8-fonctionnalit%C3%A9s">✨ Fonctionnalités</h2>
+<h3 id="%F0%9F%8E%AE-gameplay">🎮 Gameplay</h3>
+<table>
+<thead>
+<tr>
+<th>Fonctionnalité</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Création de session</strong></td>
+<td>Le créateur définit le nombre de participants et le mode de jeu</td>
+</tr>
+<tr>
+<td><strong>Rejoindre une session</strong></td>
+<td>Les joueurs rejoignent avec un code de session à 6 caractères</td>
+</tr>
+<tr>
+<td><strong>Grille de cartes</strong></td>
+<td>Cartes: 1, 2, 3, 5, 8, 13, 20, 40, 100, ?, ☕</td>
+</tr>
+<tr>
+<td><strong>Mode Strict</strong></td>
+<td>Tous les joueurs doivent voter avant de révéler les résultats</td>
+</tr>
+<tr>
+<td><strong>Mode Libre</strong></td>
+<td>Révélation immédiate après chaque vote</td>
+</tr>
+<tr>
+<td><strong>Résultats</strong></td>
+<td>Affichage: tous les votes, moyenne, médiane</td>
+</tr>
+<tr>
+<td><strong>Rounds multiples</strong></td>
+<td>Relancer le vote pour la même tâche</td>
+</tr>
+</tbody>
+</table>
+<h3 id="%F0%9F%93%81-gestion-des-fichiers">📁 Gestion des fichiers</h3>
+<table>
+<thead>
+<tr>
+<th>Fonctionnalité</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ajouter des tâches</strong></td>
+<td>Interface pour ajouter des tâches au backlog</td>
+</tr>
+<tr>
+<td><strong>Charger un backlog</strong></td>
+<td>Importer un JSON avec des tâches</td>
+</tr>
+<tr>
+<td><strong>Télécharger résultats</strong></td>
+<td>Export JSON complet avec votes et estimations</td>
+</tr>
+<tr>
+<td><strong>Reprendre une partie</strong></td>
+<td>Charger une sauvegarde et continuer le vote</td>
+</tr>
+<tr>
+<td><strong>Restaurer une session</strong></td>
+<td>Rejoindre avec noms exacts des participants</td>
+</tr>
+</tbody>
+</table>
+<h3 id="%F0%9F%91%A5-gestion-des-joueurs">👥 Gestion des joueurs</h3>
+<table>
+<thead>
+<tr>
+<th>Fonctionnalité</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Liste des joueurs</strong></td>
+<td>Affichage en temps réel des participants connectés</td>
+</tr>
+<tr>
+<td><strong>Statut de vote</strong></td>
+<td>Indicateurs &quot;Voté ✓&quot; / &quot;En attente&quot;</td>
+</tr>
+<tr>
+<td><strong>Barre de progression</strong></td>
+<td>Pourcentage de joueurs ayant voté</td>
+</tr>
+<tr>
+<td><strong>Statut connexion</strong></td>
+<td>Indicateur connecté/déconnecté</td>
+</tr>
+<tr>
+<td><strong>Compteur participants</strong></td>
+<td>X/Y joueurs connectés</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="%F0%9F%8F%97%EF%B8%8F-architecture">🏗️ Architecture</h2>
+<h3 id="vue-g%C3%A9n%C3%A9rale">Vue générale</h3>
+<pre class="prettyprint source"><code>Client (Frontend)          Server (Backend)
+├── HTML/CSS               ├── Express.js
+├── JavaScript             ├── Node.js
+├── Components UI          ├── Socket.io
+└── Socket.io Client       └── Session Manager
+</code></pre>
+<h3 id="flux-de-donn%C3%A9es">Flux de données</h3>
+<pre class="prettyprint source"><code>Client → Socket.io Event → Server → Logic → State Update → Broadcast → Clients
+                           ↓
+                      REST API
+                           ↓
+                      Session Data
+</code></pre>
+<h3 id="modules-principaux">Modules principaux</h3>
+<p><strong>Frontend:</strong></p>
+<ul>
+<li><code>PlanningPokerClient</code> - Classe principale du client</li>
+<li><code>CardGrid</code> - Grille interactive de cartes</li>
+<li><code>PlayerList</code> - Liste des joueurs</li>
+<li><code>ProgressBar</code> - Barre de progression des votes</li>
+<li><code>ConnectionStatus</code> - Indicateur de connexion</li>
+<li>Screens (écrans de jeu)</li>
+</ul>
+<p><strong>Backend:</strong></p>
+<ul>
+<li><code>server.js</code> - Serveur Express et Socket.io</li>
+<li><code>socketHandlers.js</code> - Handlers des événements Socket</li>
+<li><code>gameState.js</code> - État du jeu partagé</li>
+</ul>
+<hr>
+<h2 id="%F0%9F%93%A6-installation">📦 Installation</h2>
+<h3 id="pr%C3%A9requis">Prérequis</h3>
+<ul>
+<li><strong>Node.js</strong> v14.0.0 ou supérieur</li>
+<li><strong>npm</strong> v6.0.0 ou supérieur</li>
+<li><strong>Navigateur moderne</strong> (Chrome, Firefox, Safari, Edge)</li>
+</ul>
+<h3 id="%C3%A9tapes-d'installation">Étapes d'installation</h3>
+<h4 id="1.-cloner-ou-t%C3%A9l%C3%A9charger-le-projet">1. Cloner ou télécharger le projet</h4>
+<pre class="prettyprint source lang-bash"><code>git clone https://github.com/yourusername/planning-poker-pro.git
+cd planning-poker-pro
+</code></pre>
+<h4 id="2.-installer-les-d%C3%A9pendances">2. Installer les dépendances</h4>
+<pre class="prettyprint source lang-bash"><code>npm install
+</code></pre>
+<p>Cela installe:</p>
+<ul>
+<li><code>express</code> - Framework web</li>
+<li><code>socket.io</code> - Communication en temps réel</li>
+<li><code>cors</code> - Cross-Origin Resource Sharing</li>
+<li><code>jest</code> - Framework de test (dev)</li>
+<li><code>@babel/preset-env</code> - Transpilation ES6+ (dev)</li>
+</ul>
+<h4 id="3.-d%C3%A9marrer-le-serveur">3. Démarrer le serveur</h4>
+<pre class="prettyprint source lang-bash"><code># Mode production
+npm start
+
+# Mode développement (avec hot reload)
+npm run dev
+</code></pre>
+<h4 id="4.-acc%C3%A9der-l'application">4. Accéder l'application</h4>
+<p>Ouvrez votre navigateur à:</p>
+<pre class="prettyprint source"><code>http://localhost:3000
+</code></pre>
+<hr>
+<h2 id="%F0%9F%8E%AF-utilisation">🎯 Utilisation</h2>
+<h3 id="sc%C3%A9nario-1%3A-cr%C3%A9er-une-nouvelle-partie">Scénario 1: Créer une nouvelle partie</h3>
+<ol>
+<li><strong>Démarrer le serveur</strong> (<code>npm start</code>)</li>
+<li><strong>Aller sur</strong> <code>http://localhost:3000</code></li>
+<li><strong>Cliquer</strong> &quot;Créer une partie&quot;</li>
+<li><strong>Remplir le formulaire:</strong>
+<ul>
+<li>Votre pseudo</li>
+<li>Mode de jeu (Strict ou Libre)</li>
+<li>Nombre de participants attendus</li>
+</ul>
+</li>
+<li><strong>Partager le code de session</strong> avec les autres joueurs</li>
+</ol>
+<h3 id="sc%C3%A9nario-2%3A-rejoindre-une-partie">Scénario 2: Rejoindre une partie</h3>
+<ol>
+<li><strong>Aller sur</strong> <code>http://localhost:3000</code></li>
+<li><strong>Cliquer</strong> &quot;Rejoindre une partie&quot;</li>
+<li><strong>Entrer:</strong>
+<ul>
+<li>Votre pseudo</li>
+<li>Code de session reçu (6 caractères)</li>
+</ul>
+</li>
+<li><strong>Attendre</strong> que le créateur lance le jeu</li>
+</ol>
+<h3 id="sc%C3%A9nario-3%3A-ajouter-des-t%C3%A2ches-et-voter">Scénario 3: Ajouter des tâches et voter</h3>
+<ol>
+<li><strong>Sur l'écran de configuration</strong>, cliquer &quot;Ajouter des tâches&quot;</li>
+<li><strong>Saisir</strong> le nom et description de chaque tâche</li>
+<li><strong>Cliquer</strong> &quot;Lancer le jeu&quot;</li>
+<li><strong>Voter</strong> en cliquant sur une carte</li>
+<li><strong>Voir les résultats</strong> (selon le mode)</li>
+</ol>
+<h3 id="sc%C3%A9nario-4%3A-sauvegarder-et-reprendre">Scénario 4: Sauvegarder et reprendre</h3>
+<ol>
+<li><strong>En fin de partie</strong>, cliquer &quot;Télécharger résultats&quot;</li>
+<li><strong>Sauvegarder</strong> le fichier JSON localement</li>
+<li><strong>Plus tard, cliquer</strong> &quot;Reprendre une partie&quot;</li>
+<li><strong>Charger</strong> le fichier JSON téléchargé</li>
+<li><strong>Entrer</strong> votre pseudo (doit être exact)</li>
+<li><strong>Continuer</strong> les estimations</li>
+</ol>
+<hr>
+<h2 id="%F0%9F%93%82-structure-du-projet">📂 Structure du projet</h2>
+<pre class="prettyprint source"><code>planning-poker-pro/
+├── public/                     # Fichiers statiques
+│   ├── index.html             # Page principale
+│   ├── style.css              # Styles CSS
+│   └── assets/                # Images et icônes
+│
+├── core/                       # Logique métier côté client
+│   ├── PlanningPokerClient.js # Classe principale
+│   ├── socketHandlers.js      # Handlers Socket.io
+│   └── gameState.js           # État du jeu
+│
+├── ui/                        # Interface utilisateur
+│   ├── components/            # Composants réutilisables
+│   │   ├── CardGrid.js        # Grille de cartes
+│   │   ├── PlayerList.js      # Liste des joueurs
+│   │   ├── ProgressBar.js     # Barre de progression
+│   │   ├── ConnectionStatus.js # Statut connexion
+│   │   └── WaitingPlayers.js  # Joueurs en attente
+│   │
+│   └── screens/               # Écrans/pages du jeu
+│       ├── menuScreen.js      # Menu principal
+│       ├── setupScreen.js     # Configuration
+│       ├── gameScreen.js      # Écran de jeu
+│       ├── resultsScreen.js   # Résultats des votes
+│       ├── addTasksScreen.js  # Ajout de tâches
+│       ├── taskCompletedScreen.js # Tâche complétée
+│       ├── coffeeBreakScreen.js   # Pause café
+│       ├── gameOverScreen.js      # Fin de partie
+│       ├── resumeWaitingScreen.js # Attente restauration
+│       └── resumeSummaryScreen.js # Résumé restauration
+│
+├── tests/                     # Tests unitaires
+│   ├── __tests__/
+│   ├── unit/
+│   └── integration/
+│
+├── server.js                  # Serveur Express + Socket.io
+├── package.json               # Dépendances et scripts
+├── package-lock.json          # Lock file npm
+└── README.md                  # Cette documentation
+</code></pre>
+<hr>
+<h2 id="%F0%9F%94%8C-api-rest">🔌 API REST</h2>
+<h3 id="cr%C3%A9er-une-session">Créer une session</h3>
+<pre class="prettyprint source"><code>POST /api/create-session
+Content-Type: application/json
+
+{
+  &quot;creatorName&quot;: &quot;Alice&quot;,
+  &quot;gameMode&quot;: &quot;strict&quot;,
+  &quot;isRestored&quot;: false,
+  &quot;expectedParticipantCount&quot;: 3,
+  &quot;participants&quot;: [&quot;Alice&quot;, &quot;Bob&quot;, &quot;Charlie&quot;]
+}
+
+Response 200:
+{
+  &quot;sessionCode&quot;: &quot;ABC123&quot;,
+  &quot;message&quot;: &quot;Session created&quot;
+}
+</code></pre>
+<h3 id="r%C3%A9cup%C3%A9rer-une-session">Récupérer une session</h3>
+<pre class="prettyprint source"><code>GET /api/session/:sessionCode
+
+Response 200:
+{
+  &quot;sessionCode&quot;: &quot;ABC123&quot;,
+  &quot;gameMode&quot;: &quot;strict&quot;,
+  &quot;creatorName&quot;: &quot;Alice&quot;,
+  &quot;isRestored&quot;: false,
+  &quot;expectedParticipants&quot;: [&quot;Alice&quot;, &quot;Bob&quot;],
+  &quot;expectedParticipantCount&quot;: 3,
+  &quot;hasBacklog&quot;: true
+}
+</code></pre>
+<hr>
+<h2 id="%F0%9F%93%A1-%C3%A9v%C3%A9nements-socket.io">📡 Événements Socket.io</h2>
+<h3 id="client-%E2%86%92-serveur">Client → Serveur</h3>
+<h4 id="join-session"><code>join-session</code></h4>
+<pre class="prettyprint source lang-javascript"><code>socket.emit('join-session', {
+  sessionCode: 'ABC123',
+  playerName: 'Alice'
+});
+</code></pre>
+<h4 id="cast-vote"><code>cast-vote</code></h4>
+<pre class="prettyprint source lang-javascript"><code>socket.emit('cast-vote', {
+  sessionCode: 'ABC123',
+  cardValue: '8'
+});
+</code></pre>
+<h4 id="load-backlog"><code>load-backlog</code></h4>
+<pre class="prettyprint source lang-javascript"><code>socket.emit('load-backlog', {
+  sessionCode: 'ABC123',
+  backlog: [
+    { id: 1, name: 'Créer API', description: '...' },
+    { id: 2, name: 'Tests', description: '...' }
+  ]
+});
+</code></pre>
+<h4 id="continue-new-round"><code>continue-new-round</code></h4>
+<pre class="prettyprint source lang-javascript"><code>socket.emit('continue-new-round', {
+  sessionCode: 'ABC123'
+});
+</code></pre>
+<h4 id="continue-next-round"><code>continue-next-round</code></h4>
+<pre class="prettyprint source lang-javascript"><code>socket.emit('continue-next-round', {
+  sessionCode: 'ABC123',
+  completedTasks: [1],
+  taskEstimates: { '1': 8 }
+});
+</code></pre>
+<h4 id="leave-session"><code>leave-session</code></h4>
+<pre class="prettyprint source lang-javascript"><code>socket.emit('leave-session');
+</code></pre>
+<h3 id="serveur-%E2%86%92-client">Serveur → Client</h3>
+<h4 id="players-list-updated"><code>players-list-updated</code></h4>
+<pre class="prettyprint source lang-javascript"><code>socket.on('players-list-updated', (players) => {
+  console.log(players); // Array of players
+});
+</code></pre>
+<h4 id="votes-received"><code>votes-received</code></h4>
+<pre class="prettyprint source lang-javascript"><code>socket.on('votes-received', (votes) => {
+  console.log(votes); // Object with player votes
+});
+</code></pre>
+<h4 id="backlog-loaded"><code>backlog-loaded</code></h4>
+<pre class="prettyprint source lang-javascript"><code>socket.on('backlog-loaded', (data) => {
+  console.log(data.backlog); // Tasks
+  console.log(data.currentTask); // Current task
+});
+</code></pre>
+<h4 id="game-started"><code>game-started</code></h4>
+<pre class="prettyprint source lang-javascript"><code>socket.on('game-started', () => {
+  // Game has started
+});
+</code></pre>
+<h4 id="game-over"><code>game-over</code></h4>
+<pre class="prettyprint source lang-javascript"><code>socket.on('game-over', () => {
+  // Game has ended
+});
+</code></pre>
+<hr>
+<h2 id="%F0%9F%A7%AA-tests">🧪 Tests</h2>
+<h3 id="installation-des-d%C3%A9pendances-de-test">Installation des dépendances de test</h3>
+<p>Les dépendances sont déjà dans <code>package.json</code>:</p>
+<pre class="prettyprint source lang-bash"><code>npm install
+</code></pre>
+<h3 id="lancer-les-tests">Lancer les tests</h3>
+<pre class="prettyprint source lang-bash"><code># Tous les tests
+npm test
+
+# Mode watch (relance à chaque changement)
+npm run test:watch
+
+# Rapport de couverture
+npm run test:coverage
+</code></pre>
+<h3 id="structure-des-tests">Structure des tests</h3>
+<pre class="prettyprint source"><code>tests/
+├── __tests__/              # Tests intégration
+├── unit/                   # Tests unitaires
+│   ├── CardGrid.test.js
+│   ├── PlayerList.test.js
+│   └── PlanningPokerClient.test.js
+└── integration/            # Tests d'intégration
+    ├── socketHandlers.test.js
+    └── gameFlow.test.js
+</code></pre>
+<h3 id="exemple-de-test">Exemple de test</h3>
+<pre class="prettyprint source lang-javascript"><code>describe('CardGrid', () => {
+  it('should render 11 cards', () => {
+    const container = document.getElementById('cardsContainer');
+    renderCards(app);
+    expect(container.children.length).toBe(11);
+  });
+});
+</code></pre>
+<h3 id="couverture-minimale">Couverture minimale</h3>
+<ul>
+<li><strong>Branches:</strong> 70%</li>
+<li><strong>Functions:</strong> 70%</li>
+<li><strong>Lines:</strong> 70%</li>
+<li><strong>Statements:</strong> 70%</li>
+</ul>
+<hr>
+<h2 id="%F0%9F%93%9A-documentation">📚 Documentation</h2>
+<h3 id="jsdoc">JSDoc</h3>
+<p>Tout le code est documenté avec JSDoc:</p>
+<pre class="prettyprint source lang-javascript"><code>/**
+ * Description de la fonction
+ * 
+ * @function myFunction
+ * @param {string} name - Description du paramètre
+ * @returns {void}
+ * 
+ * @example
+ * myFunction('Alice');
+ */
+</code></pre>
+<h3 id="g%C3%A9n%C3%A9rer-la-documentation">Générer la documentation</h3>
+<pre class="prettyprint source lang-bash"><code># Avec JSDoc (optionnel)
+npm install -g jsdoc
+jsdoc core/ ui/ -d docs/
+</code></pre>
+<h3 id="fichiers-document%C3%A9s">Fichiers documentés</h3>
+<ul>
+<li>✅ <code>PlanningPokerClient.js</code> - Classe principale</li>
+<li>✅ <code>CardGrid.js</code> - Composant cartes</li>
+<li>✅ <code>PlayerList.js</code> - Composant joueurs</li>
+<li>✅ <code>ProgressBar.js</code> - Barre de progression</li>
+<li>✅ <code>ConnectionStatus.js</code> - Statut connexion</li>
+<li>✅ <code>WaitingPlayers.js</code> - Joueurs en attente</li>
+</ul>
+<hr>
+<h2 id="%F0%9F%9B%A0%EF%B8%8F-d%C3%A9pannage">🛠️ Dépannage</h2>
+<h3 id="%22impossible-de-se-connecter-au-serveur%22">&quot;Impossible de se connecter au serveur&quot;</h3>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Vérifier que le serveur est lancé: <code>npm start</code></li>
+<li>Vérifier l'URL: <code>http://localhost:3000</code></li>
+<li>Vérifier les logs du navigateur (F12 → Console)</li>
+<li>Vérifier le port 3000 n'est pas occupé:<pre class="prettyprint source lang-bash"><code># Linux/Mac
+lsof -i :3000
+
+# Windows
+netstat -ano | findstr :3000
+</code></pre>
+</li>
+</ol>
+<h3 id="%22code-de-session-non-trouv%C3%A9%22">&quot;Code de session non trouvé&quot;</h3>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Vérifier que le créateur a lancé le jeu</li>
+<li>Vérifier le code de session (6 caractères)</li>
+<li>Vérifier que la session n'a pas expiré</li>
+<li>Créer une nouvelle session si nécessaire</li>
+</ol>
+<h3 id="%22acc%C3%A8s-refus%C3%A9---pseudo-non-autoris%C3%A9%22">&quot;Accès refusé - pseudo non autorisé&quot;</h3>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Vérifier l'orthographe exacte du pseudo</li>
+<li>Les pseudos sont sensibles à la casse</li>
+<li>Vérifier que votre pseudo figure dans la liste des participants</li>
+</ol>
+<h3 id="%22impossible-de-charger-le-fichier-json%22">&quot;Impossible de charger le fichier JSON&quot;</h3>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Vérifier que le fichier est un JSON valide</li>
+<li>Vérifier que le fichier contient <code>metadata</code> et <code>tasks</code></li>
+<li>Vérifier que le <code>sessionCode</code> existe</li>
+<li>Relancer l'application</li>
+</ol>
+<h3 id="socket.io-se-d%C3%A9connecte">Socket.io se déconnecte</h3>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Vérifier la connexion réseau</li>
+<li>Vérifier les logs du serveur</li>
+<li>Vérifier que CORS est activé</li>
+<li>Relancer le serveur: <code>npm start</code></li>
+</ol>
+<hr>
+<h2 id="%F0%9F%9A%80-d%C3%A9ploiement">🚀 Déploiement</h2>
+<h3 id="heroku">Heroku</h3>
+<pre class="prettyprint source lang-bash"><code># 1. Créer une app Heroku
+heroku create my-planning-poker
+
+# 2. Déployer
+git push heroku main
+
+# 3. Ouvrir
+heroku open
+</code></pre>
+<h3 id="docker">Docker</h3>
+<pre class="prettyprint source lang-dockerfile"><code>FROM node:14
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --production
+COPY . .
+EXPOSE 3000
+CMD [&quot;npm&quot;, &quot;start&quot;]
+</code></pre>
+<pre class="prettyprint source lang-bash"><code>docker build -t planning-poker .
+docker run -p 3000:3000 planning-poker
+</code></pre>
+<hr>
+<h2 id="%F0%9F%93%9D-scripts-disponibles">📝 Scripts disponibles</h2>
+<table>
+<thead>
+<tr>
+<th>Script</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>npm start</code></td>
+<td>Démarre le serveur (production)</td>
+</tr>
+<tr>
+<td><code>npm run dev</code></td>
+<td>Démarre le serveur (développement)</td>
+</tr>
+<tr>
+<td><code>npm test</code></td>
+<td>Lance tous les tests</td>
+</tr>
+<tr>
+<td><code>npm run test:watch</code></td>
+<td>Tests en mode watch</td>
+</tr>
+<tr>
+<td><code>npm run test:coverage</code></td>
+<td>Rapport de couverture de code</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="%F0%9F%93%8B-checklist-pour-commencer">📋 Checklist pour commencer</h2>
+<ul>
+<li>[ ] Installer Node.js v14+</li>
+<li>[ ] <code>npm install</code> - Installer les dépendances</li>
+<li>[ ] <code>npm start</code> - Lancer le serveur</li>
+<li>[ ] Ouvrir <code>http://localhost:3000</code> dans le navigateur</li>
+<li>[ ] Créer une nouvelle partie</li>
+<li>[ ] Partager le code avec d'autres joueurs</li>
+<li>[ ] Ajouter des tâches</li>
+<li>[ ] Voter sur les estimations</li>
+<li>[ ] Télécharger les résultats</li>
+</ul>
+<hr>
+<h2 id="%F0%9F%A4%9D-contribution">🤝 Contribution</h2>
+<p>Les contributions sont bienvenues! Pour contribuer:</p>
+<ol>
+<li>Fork le projet</li>
+<li>Créer une branche (<code>git checkout -b feature/AmazingFeature</code>)</li>
+<li>Commit les changements (<code>git commit -m 'Add AmazingFeature'</code>)</li>
+<li>Push vers la branche (<code>git push origin feature/AmazingFeature</code>)</li>
+<li>Ouvrir une Pull Request</li>
+</ol>
+<hr>
+<h2 id="%F0%9F%93%84-license">📄 License</h2>
+<p>Ce projet est licencié sous la MIT License - voir le fichier <code>LICENSE</code> pour plus de détails.</p>
+<hr>
+<h2 id="%F0%9F%91%A8%E2%80%8D%F0%9F%92%BB-support-et-contact">👨‍💻 Support et Contact</h2>
+<p>Pour toute question ou problème:</p>
+<ul>
+<li>📧 Email: support@planningpoker.dev</li>
+<li>🐛 Issues: <a href="https://github.com/yourusername/planning-poker-pro/issues">GitHub Issues</a></li>
+<li>💬 Discussions: <a href="https://github.com/yourusername/planning-poker-pro/discussions">GitHub Discussions</a></li>
+</ul>
+<hr>
+<h2 id="%F0%9F%8E%93-ressources-p%C3%A9dagogiques">🎓 Ressources pédagogiques</h2>
+<h3 id="planning-poker">Planning Poker</h3>
+<ul>
+<li><a href="https://www.mountaingoatsoftware.com/agile/planning-poker/">Mountain Goat Software - Planning Poker</a></li>
+<li><a href="https://www.scrum.org/resources/what-is-planning-poker">Scrum.org - Planning Poker</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Fibonacci_number">Fibonacci Sequence</a></li>
+</ul>
+<h3 id="technologies-utilis%C3%A9es">Technologies utilisées</h3>
+<ul>
+<li><a href="https://expressjs.com/">Express.js Documentation</a></li>
+<li><a href="https://socket.io/docs/">Socket.io Documentation</a></li>
+<li><a href="https://jestjs.io/docs/getting-started">Jest Testing Guide</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript">JavaScript ES6+</a></li>
+</ul>
+<hr>
+<p><strong>Version actuelle:</strong> 1.0.0<br>
+<strong>Dernière mise à jour:</strong> Décembre 2025<br>
+<strong>Mainteneur:</strong> Planning Poker Team 🎯</p></article>
+    </section>
+
 
 
 
