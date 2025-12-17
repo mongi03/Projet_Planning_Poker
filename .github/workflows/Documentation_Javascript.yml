@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-node@v4
 
     - name : Install JsDoc
-      run : npm install -g jsdoc
+      run : npm install -g jsdoc glob
 
     - name: Generate Documentation
       run: npm run docs
