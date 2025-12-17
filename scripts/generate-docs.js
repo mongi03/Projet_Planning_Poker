@@ -14,7 +14,6 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const glob = require('glob');
 
 const colors = {
   reset: '\x1b[0m',
