@@ -113,7 +113,7 @@ Client → Socket.io Event → Server → Logic → State Update → Broadcast �
 #### 1. Cloner ou télécharger le projet
 
 ```bash
-git clone https://github.com/yourusername/planning-poker.git
+git clone https://github.com/mongi03/Projet_Planning_Poker.git
 cd planning-poker
 ```
 
