@@ -410,40 +410,6 @@ npm run test:watch
 npm run test:coverage
 ```
 
-### Structure des tests
-
-```
-tests/
-├── __tests__/              # Tests intégration
-├── unit/                   # Tests unitaires
-│   ├── CardGrid.test.js
-│   ├── PlayerList.test.js
-│   └── PlanningPokerClient.test.js
-└── integration/            # Tests d'intégration
-    ├── socketHandlers.test.js
-    └── gameFlow.test.js
-```
-
-### Exemple de test
-
-```javascript
-describe('CardGrid', () => {
-  it('should render 11 cards', () => {
-    const container = document.getElementById('cardsContainer');
-    renderCards(app);
-    expect(container.children.length).toBe(11);
-  });
-});
-```
-
-### Couverture minimale
-
-- **Branches:** 70%
-- **Functions:** 70%
-- **Lines:** 70%
-- **Statements:** 70%
-
----
 
 ## 📚 Documentation
 
@@ -469,7 +435,7 @@ Tout le code est documenté avec JSDoc:
 ```bash
 # Avec JSDoc (optionnel)
 npm install -g jsdoc
-jsdoc core/ ui/ -d docs/
+npm run docs
 ```
 
 ### Fichiers documentés
@@ -533,39 +499,7 @@ jsdoc core/ ui/ -d docs/
 
 ---
 
-## 🚀 Déploiement
 
-### Heroku
-
-```bash
-# 1. Créer une app Heroku
-heroku create my-planning-poker
-
-# 2. Déployer
-git push heroku main
-
-# 3. Ouvrir
-heroku open
-```
-
-### Docker
-
-```dockerfile
-FROM node:14
-WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
-COPY . .
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
-```bash
-docker build -t planning-poker .
-docker run -p 3000:3000 planning-poker
-```
-
----
 
 ## 📝 Scripts disponibles
 
@@ -593,33 +527,6 @@ docker run -p 3000:3000 planning-poker
 
 ---
 
-## 🤝 Contribution
-
-Les contributions sont bienvenues! Pour contribuer:
-
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/AmazingFeature`)
-3. Commit les changements (`git commit -m 'Add AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
-
----
-
-## 📄 License
-
-Ce projet est licencié sous la MIT License - voir le fichier `LICENSE` pour plus de détails.
-
----
-
-## 👨‍💻 Support et Contact
-
-Pour toute question ou problème:
-
-- 📧 Email: support@planningpoker.dev
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/planning-poker-pro/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/planning-poker-pro/discussions)
-
----
 
 ## 🎓 Ressources pédagogiques
 
