@@ -1,0 +1,1276 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> core/PlanningPokerClient.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-CardGrid.html">CardGrid</a></li><li><a href="module-ConnectionStatus.html">ConnectionStatus</a></li><li><a href="module-GameState.html">GameState</a></li><li><a href="module-PlanningPokerClient.html">PlanningPokerClient</a></li><li><a href="module-PlayerList.html">PlayerList</a></li><li><a href="module-ProgressBar.html">ProgressBar</a></li><li><a href="module-SocketHandlers.html">SocketHandlers</a></li><li><a href="module-Validations.html">Validations</a></li><li><a href="module-WaitingPlayers.html">WaitingPlayers</a></li><li><a href="module-app.html">app</a></li></ul><h3>Classes</h3><ul><li><a href="module-PlanningPokerClient-PlanningPokerClient.html">PlanningPokerClient</a></li></ul><h3>Events</h3><ul><li><a href="module-SocketHandlers.html#~event:backlog-loaded">backlog-loaded</a></li><li><a href="module-SocketHandlers.html#~event:coffee-break">coffee-break</a></li><li><a href="module-SocketHandlers.html#~event:connect">connect</a></li><li><a href="module-SocketHandlers.html#~event:disconnect">disconnect</a></li><li><a href="module-SocketHandlers.html#~event:error">error</a></li><li><a href="module-SocketHandlers.html#~event:game-over">game-over</a></li><li><a href="module-SocketHandlers.html#~event:new-round">new-round</a></li><li><a href="module-SocketHandlers.html#~event:next-task">next-task</a></li><li><a href="module-SocketHandlers.html#~event:player-joined">player-joined</a></li><li><a href="module-SocketHandlers.html#~event:player-left">player-left</a></li><li><a href="module-SocketHandlers.html#~event:session-info">session-info</a></li><li><a href="module-SocketHandlers.html#~event:show-results">show-results</a></li><li><a href="module-SocketHandlers.html#~event:vote-status">vote-status</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>core/PlanningPokerClient.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @fileoverview Client Planning Poker - Classe principale de l'application
+ * @module PlanningPokerClient
+ * @version 1.0.0
+ * @requires ./socketHandlers.js
+ * @requires ./gameState.js
+ * @requires ../ui/screens/menuScreen.js
+ * @requires ../ui/screens/setupScreen.js
+ * @requires ../ui/screens/resultsScreen.js
+ * @requires ../ui/screens/gameScreen.js
+ * @requires ../ui/components/CardGrid.js
+ * @requires ../ui/components/ProgressBar.js
+ * @requires ../ui/components/ConnectionStatus.js
+ * 
+ * @description
+ * Classe PlanningPokerClient - Gestionnaire principal de l'application Planning Poker.
+ * Contrôle:
+ * - L'initialisation et la connexion Socket.io
+ * - L'état de la session (code, pseudo, mode de jeu)
+ * - La navigation entre les écrans
+ * - Le rendu des composants
+ * - La logique métier (votes, tâches, sessions, fichiers)
+ * - L'upload et téléchargement de fichiers
+ */
+
+import { setupSocketHandlers } from './socketHandlers.js';
+import { defaultGameState } from './gameState.js';
+import { showMenuScreen, showJoinForm, showResumeForm } from '../ui/screens/menuScreen.js';
+import { showSetupScreen } from '../ui/screens/setupScreen.js';
+import { showResults } from '../ui/screens/resultsScreen.js';
+import { showTaskCompletedScreen } from '../ui/screens/taskCompletedScreen.js';
+import { showCoffeeBreakScreen } from '../ui/screens/coffeeBreakScreen.js';
+import { showGameOverScreen } from '../ui/screens/gameOverScreen.js';
+import { showResumeWaitingScreen } from '../ui/screens/resumeWaitingScreen.js';
+import { showResumeSummaryScreen } from '../ui/screens/resumeSummaryScreen.js';
+import { showAddTasksScreen } from '../ui/screens/addTasksScreen.js';
+import { renderPlayersList } from '../ui/components/PlayerList.js';
+import { renderGameScreen } from '../ui/screens/gameScreen.js';
+import { renderResults } from '../ui/screens/resultsScreen.js';
+import { renderTaskCompletedScreen } from '../ui/screens/taskCompletedScreen.js';
+import { renderResumeParticipants } from '../ui/screens/resumeWaitingScreen.js';
+import { renderResumeSummary } from '../ui/screens/resumeSummaryScreen.js';
+import { renderCards } from '../ui/components/CardGrid.js';
+import { updateProgressBar } from '../ui/components/ProgressBar.js';
+import { updateResumeWaitingScreen } from '../ui/screens/resumeWaitingScreen.js';
+import { updateConnectionStatus } from '../ui/components/ConnectionStatus.js';
+import { renderTasksList } from '../ui/screens/addTasksScreen.js';
+import { showGameScreen } from '../ui/screens/gameScreen.js';
+
+
+/**
+ * @class PlanningPokerClient
+ * @description Classe principale du client Planning Poker.
+ * Gère la connexion au serveur, l'état du client et l'affichage des écrans.
+ * 
+ * @example
+ * const app = new PlanningPokerClient();
+ */
+class PlanningPokerClient {
+  
+  /**
+   * Constructeur de PlanningPokerClient
+   * 
+   * Initialise l'instance du client avec tous les paramètres nécessaires:
+   * - Connexion Socket.io (null au départ)
+   * - État de session (code, pseudo, mode)
+   * - État local du client (backlog, votes restaurés)
+   * - État du jeu (joueurs, votes, tâches)
+   * - Gestionnaire d'upload de fichiers
+   * 
+   * @constructor
+   * 
+   * @example
+   * const app = new PlanningPokerClient();
+   */
+  constructor() {
+    this.socket = null;
+    this.sessionCode = null;
+    this.playerName = null;
+    this.gameMode = null;
+    this.isConnected = false;
+    this.localBacklog = {};
+    this.creatorName = null;
+    this.isRestoredSession = false;
+    this.restoredMetadata = null;
+    this.restoredVotes = {};
+    this.gameState = defaultGameState;
+    this.expectedParticipantCount = 0;
+    this.initializeSocket();
+    this.attachFileHandler();
+  }
+
+
+  /**
+   * Initialise la connexion Socket.io au serveur
+   * 
+   * Établit la connexion WebSocket au serveur Planning Poker
+   * et configure tous les handlers d'événements Socket
+   * 
+   * @function initializeSocket
+   * @returns {void}
+   * 
+   * @description
+   * - Détermine l'URL du serveur (protocol, hostname, port 3000)
+   * - Crée une instance Socket.io
+   * - Configure les handlers via setupSocketHandlers
+   * 
+   * @example
+   * this.initializeSocket();
+   */
+  initializeSocket() {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = 3000;
+    const serverURL = `${protocol}//${hostname}:${port}`;
+    this.socket = io(serverURL);
+    setupSocketHandlers(this.socket, this.gameState, this);
+  }
+
+
+  // ========================================
+  // SCREEN DISPLAY METHODS - Affichage écrans
+  // ========================================
+
+  /**
+   * Affiche l'écran du menu principal
+   * 
+   * @function showMenuScreen
+   * @returns {void}
+   */
+  showMenuScreen() { showMenuScreen(); }
+
+  /**
+   * Affiche le formulaire pour créer une nouvelle session
+   * 
+   * @function showJoinForm
+   * @returns {void}
+   */
+  showJoinForm() { showJoinForm(); }
+
+  /**
+   * Affiche le formulaire pour rejoindre une session existante
+   * 
+   * @function showResumeForm
+   * @returns {void}
+   */
+  showResumeForm() { showResumeForm(); }
+
+  /**
+   * Affiche l'écran de configuration/attente des joueurs
+   * 
+   * @function showSetupScreen
+   * @returns {void}
+   */
+  showSetupScreen() {
+    showSetupScreen(this);
+  }
+
+  /**
+   * Affiche l'écran principal de vote/jeu
+   * 
+   * @function showGameScreen
+   * @returns {void}
+   */
+  showGameScreen() { showGameScreen(this); }
+
+  /**
+   * Affiche l'écran des résultats du vote
+   * 
+   * @function showResults
+   * @returns {void}
+   */
+  showResults() { showResults(this); }
+
+  /**
+   * Affiche l'écran de confirmation - tâche complétée
+   * 
+   * @function showTaskCompletedScreen
+   * @returns {void}
+   */
+  showTaskCompletedScreen() { showTaskCompletedScreen(this); }
+
+  /**
+   * Affiche l'écran de pause café
+   * 
+   * @function showCoffeeBreakScreen
+   * @returns {void}
+   */
+  showCoffeeBreakScreen() { showCoffeeBreakScreen(this); }
+
+  /**
+   * Affiche l'écran de fin de partie
+   * 
+   * @function showGameOverScreen
+   * @returns {void}
+   */
+  showGameOverScreen() { showGameOverScreen(); }
+
+  /**
+   * Affiche l'écran d'attente de reconnexion pour une session reprise
+   * 
+   * @function showResumeWaitingScreen
+   * @returns {void}
+   */
+  showResumeWaitingScreen() { showResumeWaitingScreen(this); }
+
+  /**
+   * Affiche le résumé de la session à reprendre
+   * 
+   * @function showResumeSummaryScreen
+   * @returns {void}
+   */
+  showResumeSummaryScreen() { showResumeSummaryScreen(this); }
+
+  /**
+   * Affiche l'écran d'ajout de tâches au backlog
+   * 
+   * @function showAddTasksScreen
+   * @returns {void}
+   */
+  showAddTasksScreen() { showAddTasksScreen(this); }
+
+
+  // ========================================
+  // RENDER METHODS - Rendu des composants
+  // ========================================
+
+  /**
+   * Rend la liste des joueurs connectés
+   * 
+   * @function renderPlayersList
+   * @returns {void}
+   */
+  renderPlayersList() {   
+    console.log('🎮 Rendu liste joueurs:', this.gameState.players); 
+    renderPlayersList(this.gameState.players); 
+  }
+
+  /**
+   * Affiche les joueurs en attente avec message si liste vide
+   * 
+   * @function renderWaitingPlayers
+   * @returns {void}
+   * 
+   * @description
+   * - Récupère le conteneur #waitingPlayers
+   * - Vide le conteneur des joueurs précédents
+   * - Si aucun joueur: affiche message "En attente de joueurs..."
+   * - Sinon: affiche chaque joueur avec checkmark et statut
+   */
+  renderWaitingPlayers() {
+    const container = document.getElementById('waitingPlayers');
+    container.innerHTML = '';
+    if (this.gameState.players.length === 0) {
+      container.innerHTML = '&lt;div style="color: var(--color-text-light); text-align: center; padding: 20px;">En attente de joueurs...&lt;/div>';
+      return;
+    }
+    this.gameState.players.forEach(player => {
+      const div = document.createElement('div');
+      div.className = 'waiting-player';
+      div.innerHTML = `
+        &lt;div class="waiting-player-name">✓ ${player.name}&lt;/div>
+        &lt;div class="waiting-info">Connecté et prêt&lt;/div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  /**
+   * Rend l'écran de jeu complet
+   * 
+   * @function renderGameScreen
+   * @returns {void}
+   */
+  renderGameScreen() { renderGameScreen(this); }
+
+  /**
+   * Rend les résultats du vote
+   * 
+   * @function renderResults
+   * @returns {void}
+   */
+  renderResults() { renderResults(this); }
+
+  /**
+   * Rend l'écran de confirmation - tâche complétée
+   * 
+   * @function renderTaskCompletedScreen
+   * @returns {void}
+   */
+  renderTaskCompletedScreen() { renderTaskCompletedScreen(this); }
+
+  /**
+   * Rend la liste des participants de la session restaurée
+   * 
+   * @function renderResumeParticipants
+   * @returns {void}
+   */
+  renderResumeParticipants() { renderResumeParticipants(this); }
+
+  /**
+   * Rend le résumé de la session restaurée
+   * 
+   * @function renderResumeSummary
+   * @returns {void}
+   */
+  renderResumeSummary() { renderResumeSummary(this); }
+
+  /**
+   * Rend la grille de cartes de vote
+   * 
+   * @function renderCards
+   * @returns {void}
+   */
+  renderCards() { renderCards(this); }
+
+  /**
+   * Rend la liste des tâches du backlog local
+   * 
+   * @function renderTasksList
+   * @returns {void}
+   */
+  renderTasksList() { renderTasksList(this.localBacklog); }
+
+
+  // ========================================
+  // UPDATE METHODS - Mises à jour UI
+  // ========================================
+
+  /**
+   * Met à jour le compteur de participants
+   * 
+   * @function updateParticipantCounter
+   * @returns {void}
+   * 
+   * @description
+   * - Affiche "X/Y" joueurs connectés vs attendus
+   * - Active/désactive le bouton "Lancer le jeu"
+   * - Vérifie que tous les participants sont connectés
+   */
+  updateParticipantCounter() {
+    const current = this.gameState.players.length;
+    const expected = this.expectedParticipantCount;
+    const counter = document.getElementById('participantCounter');
+    counter.textContent = `(${current}/${expected})`;
+    const startBtn = document.getElementById('startGameBtn');
+    startBtn.disabled = !(current >= expected &amp;&amp; expected > 0);
+  }
+
+  /**
+   * Met à jour la barre de progression des votes
+   * 
+   * @function updateProgressBar
+   * @returns {void}
+   */
+  updateProgressBar() { updateProgressBar(this.gameState.players); }
+
+  /**
+   * Met à jour l'écran d'attente pour une session restaurée
+   * 
+   * @function updateResumeWaitingScreen
+   * @returns {void}
+   */
+  updateResumeWaitingScreen() { updateResumeWaitingScreen(this); }
+
+  /**
+   * Met à jour l'indicateur de statut de connexion
+   * 
+   * @function updateConnectionStatus
+   * @returns {void}
+   */
+  updateConnectionStatus() { updateConnectionStatus(this.isConnected); }
+
+  /**
+   * Masque tous les écrans et affiche le menu
+   * 
+   * @function hideAllScreens
+   * @returns {void}
+   */
+  hideAllScreens() {
+    document.querySelectorAll('.screen').forEach(screen => {
+      screen.classList.remove('active');
+    });
+    document.getElementById('menuScreen').classList.remove('hidden');
+    document.getElementById('joinForm').classList.add('hidden');
+    document.getElementById('resumeForm').classList.add('hidden');
+  }
+
+
+  // ========================================
+  // BUSINESS LOGIC - Logique métier
+  // ========================================
+
+  /**
+   * Crée une nouvelle session Planning Poker
+   * 
+   * @function createNewGame
+   * @returns {void}
+   * 
+   * @description
+   * - Récupère playerName, gameMode, participantCount du formulaire
+   * - Valide que tous les champs sont remplis
+   * - Envoie requête POST /api/create-session au serveur
+   * - Émet 'join-session' via Socket.io
+   * - Affiche l'écran de configuration
+   */
+  createNewGame() {
+    const playerName = document.getElementById('playerName').value.trim();
+    const gameMode = document.getElementById('gameMode').value;
+    const participantCount = document.getElementById('participantCount').value;
+    if (!playerName || !gameMode || !participantCount) {
+      alert('Remplissez tous les champs');
+      return;
+    }
+    this.playerName = playerName;
+    this.gameMode = gameMode;
+    this.creatorName = playerName;
+    this.isRestoredSession = false;
+    this.expectedParticipantCount = parseInt(participantCount);
+    fetch('http://localhost:3000/api/create-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        creatorName: playerName,
+        gameMode,
+        isRestored: false,
+        expectedParticipantCount: this.expectedParticipantCount
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      this.sessionCode = data.sessionCode;
+      this.socket.emit('join-session', {
+        sessionCode: this.sessionCode,
+        playerName: this.playerName
+      });
+      this.showSetupScreen();
+    })
+    .catch(err => {
+      console.error('Erreur:', err);
+      alert('Impossible de créer la session');
+    });
+  }
+
+
+  /**
+   * Rejoint une session Planning Poker existante
+   * 
+   * @function joinGame
+   * @returns {void}
+   * 
+   * @description
+   * - Récupère playerName et sessionCode du formulaire
+   * - Valide que les champs sont remplis
+   * - Vérifie que la session existe
+   * - Valide le nom du joueur contre la liste autorisée
+   * - Émet 'join-session' via Socket.io
+   * - Affiche l'écran de jeu
+   */
+  joinGame() {
+    const playerName = document.getElementById('playerNameJoin').value.trim();
+    const sessionCode = document.getElementById('sessionCode').value.trim().toUpperCase();
+    if (!playerName || !sessionCode) {
+      alert('Remplissez tous les champs');
+      return;
+    }
+    this.playerName = playerName;
+    this.sessionCode = sessionCode;
+    fetch(`http://localhost:3000/api/session/${sessionCode}`)
+      .then(r => {
+        if (!r.ok) throw new Error('Session non trouvée');
+        return r.json();
+      })
+      .then(data => {
+        if (data.isRestored) {
+          throw new Error('❌ Cette session est verrouillée - Partie restaurée en cours. Utilisez "Reprendre une partie" avec le fichier JSON.');
+        }
+        if (data.expectedParticipants &amp;&amp; data.expectedParticipants.length > 0) {
+          const exactMatch = data.expectedParticipants.some(p => p === playerName);
+          if (!exactMatch) {
+            throw new Error(`❌ Accès refusé: "${playerName}" ne correspond à AUCUN participant autorisé. Noms exacts attendus: ${data.expectedParticipants.join(', ')}`);
+          }
+        }
+        this.gameMode = data.gameMode;
+        this.creatorName = data.creatorName;
+        this.gameState.isGameStarted = data.hasBacklog;
+        this.isRestoredSession = false;
+        this.expectedParticipantCount = data.expectedParticipantCount;
+        this.socket.emit('join-session', {
+          sessionCode: this.sessionCode,
+          playerName: this.playerName,
+        });
+        this.showGameScreen();
+      })
+      .catch(err => {
+        const errorEl = document.getElementById('joinError');
+        errorEl.textContent = err.message || 'Session non trouvée ou terminée';
+        errorEl.classList.remove('hidden');
+      });
+  }
+
+
+  /**
+   * Charge et valide un fichier JSON de session restaurée
+   * 
+   * @function loadResumeFile
+   * @returns {void}
+   * 
+   * @description
+   * - Récupère le fichier du formulaire
+   * - Parse le JSON et valide la structure
+   * - Stocke la métadonnée et les tâches
+   * - Affiche un résumé du contenu chargé
+   * - Affiche les participants attendus
+   */
+  loadResumeFile() {
+    const file = document.getElementById('resumeFile').files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (data.metadata &amp;&amp; data.tasks) {
+          this.restoredMetadata = data.metadata;
+          this.restoredMetadata.tasks = data.tasks;
+          this.restoredMetadata.completedTasks = data.completedTasks || [];
+          this.restoredMetadata.taskEstimates = data.taskEstimates || {};
+          this.restoredVotes = data.votes || {};
+          document.getElementById('resumeFileDisplay').innerHTML = `
+            &lt;strong>✅ Fichier chargé&lt;/strong>&lt;br/>
+            Participants: ${data.metadata.participantCount}&lt;br/>
+            Tâches: ${data.tasks.length}&lt;br/>
+            Dernière session: ${data.metadata.sessionCode}
+          `;
+          document.getElementById('resumeValidation').innerHTML = `
+            &lt;div style="background: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px; font-size: 13px;">
+              &lt;strong>📋 Backlog restauré&lt;/strong>
+              &lt;div style="margin-top: 8px;">
+                &lt;strong>Participants attendus (${data.metadata.participantCount}):&lt;/strong> ${data.metadata.participants.join(', ')}
+              &lt;/div>
+              &lt;div style="margin-top: 8px; color: #059669;">
+                ⚠️ Saisissez votre pseudo pour rejoindre la session
+              &lt;/div>
+            &lt;/div>
+          `;
+          document.getElementById('resumeStartBtn').disabled = false;
+        } else {
+          throw new Error('Format de fichier invalide');
+        }
+      } catch (err) {
+        alert('Erreur: JSON invalide - ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+
+  /**
+   * Démarre une session restaurée depuis un fichier
+   * 
+   * @function startResume
+   * @returns {void}
+   * 
+   * @description
+   * - Récupère le pseudo du joueur
+   * - Valide que le pseudo est dans la liste autorisée
+   * - Crée la session via API /api/create-session
+   * - Émet 'join-session' via Socket.io
+   * - Affiche l'écran d'attente de reconnexion
+   */
+  startResume() {
+    const playerName = document.getElementById('playerNameResume').value.trim();
+    if (!playerName) {
+      alert('Saisissez votre pseudo');
+      return;
+    }
+    if (!this.restoredMetadata || !this.restoredMetadata.participants.some(p => p === playerName)) {
+      const errorEl = document.getElementById('resumeError');
+      errorEl.textContent = `❌ ACCÈS REFUSÉ: "${playerName}" n'est pas dans la liste des participants. Noms exacts autorisés: ${this.restoredMetadata.participants.join(', ')}`;
+      errorEl.classList.remove('hidden');
+      return;
+    }
+    this.playerName = playerName;
+    this.gameMode = this.restoredMetadata.gameMode || 'strict';
+    this.creatorName = this.restoredMetadata.participants[0];
+    this.isRestoredSession = true;
+    this.sessionCode = this.restoredMetadata.sessionCode;
+    fetch('http://localhost:3000/api/create-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionCode: this.sessionCode,
+        creatorName: this.creatorName,
+        gameMode: this.gameMode,
+        isRestored: true,
+        expectedParticipantCount: this.restoredMetadata.participantCount,
+        participants: this.restoredMetadata.participants
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      this.expectedParticipantCount = this.restoredMetadata.participantCount;
+      this.socket.emit('join-session', {
+        sessionCode: this.sessionCode,
+        playerName: this.playerName,
+      });
+      this.showResumeWaitingScreen();
+    })
+    .catch(err => {
+      console.error('Erreur:', err);
+      alert('❌ Impossible de restaurer la session: ' + err.message);
+    });
+  }
+
+
+  /**
+   * Lance le jeu avec le backlog fourni
+   * 
+   * @function startGame
+   * @returns {void}
+   * 
+   * @description
+   * - Récupère le backlog JSON du formulaire
+   * - Parse et valide le JSON
+   * - Émet 'load-backlog' avec le backlog
+   * - Ou affiche écran d'ajout de tâches si vide
+   */
+  startGame() {
+    const backlogJson = document.getElementById('backlogJson').value.trim();
+    if (backlogJson) {
+      try {
+        const backlog = JSON.parse(backlogJson);
+        if (!Array.isArray(backlog)) throw new Error('Format invalide');
+        this.socket.emit('load-backlog', {
+          sessionCode: this.sessionCode,
+          backlog: backlog,
+          metadata: this.restoredMetadata,
+          votes: this.restoredVotes
+        });
+      } catch (err) {
+        alert('JSON invalide: ' + err.message);
+      }
+    } else {
+      this.showAddTasksScreen();
+    }
+  }
+
+
+  /**
+   * Ajoute une tâche au backlog local
+   * 
+   * @function addTask
+   * @returns {void}
+   * 
+   * @description
+   * - Récupère taskName et taskDesc du formulaire
+   * - Valide que le nom de la tâche n'est pas vide
+   * - Crée un objet tâche avec id, name, description
+   * - Ajoute à this.localBacklog (Array)
+   * - Réinitialise le formulaire
+   * - Met à jour l'affichage
+   */
+  addTask() {
+    const name = document.getElementById('taskName').value.trim();
+    const description = document.getElementById('taskDesc').value.trim();
+    if (!name) {
+      alert('Remplissez au moins le nom de la tâche');
+      return;
+    }
+    const task = {
+      id: this.localBacklog.length + 1,
+      name: name,
+      description: description
+    };
+    this.localBacklog.push(task);
+    document.getElementById('taskName').value = '';
+    document.getElementById('taskDesc').value = '';
+    document.getElementById('taskName').focus();
+    this.renderTasksList();
+  }
+
+
+  /**
+   * Supprime une tâche du backlog local
+   * 
+   * @function removeTask
+   * @param {number} index - Index de la tâche à supprimer
+   * @returns {void}
+   * 
+   * @description
+   * - Supprime l'élément à l'index donné
+   * - Met à jour l'affichage
+   */
+  removeTask(index) {
+    this.localBacklog.splice(index, 1);
+    this.renderTasksList();
+  }
+
+
+  /**
+   * Lance le vote en envoyant le backlog au serveur
+   * 
+   * @function startVoting
+   * @returns {void}
+   * 
+   * @description
+   * - Vérifie que le backlog n'est pas vide
+   * - Émet 'load-backlog' au serveur
+   */
+  startVoting() {
+    if (this.localBacklog.length === 0) {
+      alert('Ajoutez au moins une tâche');
+      return;
+    }
+    this.socket.emit('load-backlog', {
+      sessionCode: this.sessionCode,
+      backlog: this.localBacklog
+    });
+  }
+
+
+  /**
+   * Enregistre un vote pour la tâche courante
+   * 
+   * @function castVote
+   * @param {string|number} cardValue - Valeur du vote (ex: '8', '?', 'coffee')
+   * @returns {void}
+   * 
+   * @description
+   * - Vérifie que socket est connecté
+   * - Vérifie que sessionCode existe
+   * - Émet 'cast-vote' au serveur
+   * - Inclut vérifications de sécurité
+   */
+  castVote(cardValue) {
+    // ✅ VÉRIFICATION DE SÉCURITÉ
+    if (!this.socket || !this.socket.connected) {
+      console.error('❌ Socket non connecté');
+      alert('⚠️ La connexion au serveur a été perdue. Veuillez recharger.');
+      return;
+    }
+
+    if (!this.sessionCode) {
+      console.error('❌ Code de session manquant');
+      alert('⚠️ Code de session manquant');
+      return;
+    }
+
+    console.log(`🗳️ Vote casting: ${cardValue} pour session ${this.sessionCode}`);
+
+    // ✅ ÉMETTRE LE VOTE
+    this.socket.emit('cast-vote', {
+      sessionCode: this.sessionCode,
+      cardValue: cardValue
+    });
+
+    console.log(`✅ Vote émis: ${cardValue}`);
+  }
+
+
+  /**
+   * Gère la continuation après l'écran de tâche complétée
+   * 
+   * @function handleContinue
+   * @returns {void}
+   */
+  handleContinue() {
+    this.showTaskCompletedScreen();
+  }
+
+
+  /**
+   * Lance un nouveau round de vote pour la même tâche
+   * 
+   * @function startNewRound
+   * @returns {void}
+   * 
+   * @description
+   * - Émet 'continue-new-round' au serveur
+   * - Réinitialise les votes pour un nouveau round
+   */
+  startNewRound() {
+    this.socket.emit('continue-new-round', {
+      sessionCode: this.sessionCode
+    });
+  }
+
+
+  /**
+   * Passe à la tâche suivante
+   * 
+   * @function continueToNext
+   * @returns {void}
+   * 
+   * @description
+   * - Marque la tâche courante comme complétée
+   * - Stocke l'estimation finale (finalValue ou medianValue)
+   * - Ajoute aux completedTasks
+   * - Stocke l'estimation dans taskEstimates
+   * - Émet 'continue-next-round' au serveur
+   */
+  continueToNext() {
+    const currentTask = this.gameState.backlog[this.gameState.currentTaskIndex];
+    if (currentTask) {
+      currentTask.finalValue = this.gameState.finalValue || this.gameState.medianValue;
+      currentTask.completed = true;
+      currentTask.completedAt = new Date().toISOString();
+      if (!this.gameState.completedTasks) {
+        this.gameState.completedTasks = [];
+      }
+      if (!this.gameState.completedTasks.includes(currentTask.id)) {
+        this.gameState.completedTasks.push(currentTask.id);
+      }
+      if (!this.gameState.taskEstimates) {
+        this.gameState.taskEstimates = {};
+      }
+      this.gameState.taskEstimates[currentTask.id] = this.gameState.finalValue || this.gameState.medianValue;
+    }
+    this.socket.emit('continue-next-round', {
+      sessionCode: this.sessionCode,
+      completedTasks: this.gameState.completedTasks,
+      taskEstimates: this.gameState.taskEstimates
+    });
+  }
+
+
+  /**
+   * Télécharge le backlog complet au format JSON
+   * 
+   * @function downloadBacklog
+   * @returns {void}
+   * 
+   * @description
+   * - Vérifie qu'il y a des tâches
+   * - Enrichit les données avec métadonnées et votes
+   * - Crée un blob JSON
+   * - Déclenche le téléchargement du fichier
+   * - Nom: backlog-[sessionCode]-[date].json
+   */
+  downloadBacklog() {
+    if (!this.gameState.backlog || this.gameState.backlog.length === 0) {
+      alert('Aucune tâche à télécharger');
+      return;
+    }
+    const participantsList = this.gameState.players.map(p => p.name);
+    if (participantsList.length !== this.expectedParticipantCount) {
+      alert(`❌ Erreur: ${participantsList.length} participants connectés mais ${this.expectedParticipantCount} attendus`);
+      return;
+    }
+    const enrichedBacklog = this.gameState.backlog.map(task => {
+      if (this.gameState.completedTasks &amp;&amp; this.gameState.completedTasks.includes(task.id)) {
+        return {
+          ...task,
+          finalValue: this.gameState.taskEstimates[task.id] || task.finalValue,
+          completed: true,
+          completedAt: task.completedAt || new Date().toISOString()
+        };
+      }
+      return task;
+    });
+    const backlogData = {
+      metadata: {
+        sessionCode: this.sessionCode,
+        participantCount: participantsList.length,
+        participants: participantsList,
+        gameMode: this.gameMode,
+        completedTasks: this.gameState.completedTasks || [],
+        taskEstimates: this.gameState.taskEstimates || {},
+        currentTaskIndex: this.gameState.currentTaskIndex,
+        currentTaskVotes: this.gameState.currentTaskVotes || {},
+        currentTaskRound: this.gameState.currentTaskRound || 1
+      },
+      tasks: enrichedBacklog,
+      votes: this.gameState.allVotes || {}
+    };
+    const dataStr = JSON.stringify(backlogData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `backlog-${this.sessionCode}-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+
+  /**
+   * Charge et valide un fichier backlog JSON
+   * 
+   * @function loadBacklogFile
+   * @returns {void}
+   * 
+   * @description
+   * - Récupère le fichier du formulaire
+   * - Parse le JSON
+   * - Valide que metadata et tasks existent
+   * - Stocke les métadonnées et votes restaurés
+   * - Affiche un résumé du contenu
+   */
+  loadBacklogFile() {
+    const file = document.getElementById('backlogFile').files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (data.metadata &amp;&amp; data.tasks) {
+          if (!data.metadata.sessionCode) {
+            throw new Error('Backlog invalide: sessionCode manquant (impossible de restaurer)');
+          }
+          document.getElementById('backlogJson').value = JSON.stringify(data.tasks, null, 2);
+          const validation = document.getElementById('backlogValidation');
+          const expectedCount = data.participantCount;
+          const expectedNames = data.participants.join(', ');
+          const hasVotes = data.votes &amp;&amp; Object.keys(data.votes).length > 0;
+          validation.innerHTML = `
+            &lt;div style="background: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px; font-size: 13px;">
+              &lt;strong>📋 Backlog restauré&lt;/strong>
+              &lt;div style="margin-top: 8px; background: #dcfce7; padding: 8px; border-radius: 4px;">
+                &lt;strong>🔐 Session:&lt;/strong> &lt;code>${data.sessionCode}&lt;/code> (RÉUTILISÉE - même code)
+              &lt;/div>
+              &lt;div style="margin-top: 8px;">
+                &lt;strong>👥 Participants EXACTS (${expectedCount}):&lt;/strong>
+                &lt;div style="margin-top: 4px; padding: 8px; background: #f3f4f6; border-radius: 4px; font-family: monospace; font-size: 12px;">
+                  ${expectedNames}
+                &lt;/div>
+              &lt;/div>
+              ${hasVotes ? `&lt;div style="margin-top: 8px; color: #dc2626;">📊 Votes précédents détectés&lt;/div>` : ''}
+              &lt;div style="margin-top: 8px; color: #059669; padding: 8px; background: #f0fdf4; border-radius: 4px;">
+                ✅ Seuls ces joueurs avec ces NOMS EXACTS peuvent se reconnecter
+              &lt;/div>
+            &lt;/div>
+          `;
+          this.restoredMetadata = {
+            sessionCode: data.sessionCode,
+            participantCount: data.participantCount,
+            participants: data.participants
+          };
+          this.restoredVotes = data.votes || {};
+        } else {
+          document.getElementById('backlogJson').value = JSON.stringify(data, null, 2);
+          document.getElementById('backlogValidation').innerHTML = '';
+          this.restoredMetadata = null;
+          this.restoredVotes = {};
+        }
+      } catch (err) {
+        alert('Erreur: JSON invalide - ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+
+  /**
+   * Annule la restauration d'une session
+   * 
+   * @function cancelResume
+   * @returns {void}
+   * 
+   * @description
+   * - Réinitialise les données restaurées
+   * - Quitte la session courante
+   */
+  cancelResume() {
+    this.isRestoredSession = false;
+    this.restoredMetadata = null;
+    this.restoredVotes = {};
+    this.leaveGame();
+  }
+
+
+  /**
+   * Quitte la session courante
+   * 
+   * @function leaveGame
+   * @returns {void}
+   * 
+   * @description
+   * - Émet 'leave-session' au serveur
+   * - Affiche le menu principal
+   */
+  leaveGame() {
+    this.socket.emit('leave-session');
+    this.showMenuScreen();
+  }
+
+
+  /**
+   * Retourne au menu principal
+   * 
+   * @function returnToMenu
+   * @returns {void}
+   */
+  returnToMenu() {
+    this.leaveGame();
+  }
+
+
+  /**
+   * Démarre une partie à partir d'un backlog restauré
+   * 
+   * @function startResumedGame
+   * @returns {void}
+   * 
+   * @description
+   * - Vérifie qu'au moins un joueur est connecté
+   * - Extrait métadonnées et tâches du backlog restauré
+   * - Crée la session via API /api/create-session
+   * - Attend que les joueurs se connectent (listener 'players-ready')
+   * - Envoie le backlog après 3 secondes (timeout)
+   */
+  startResumedGame() {
+    const connected = this.gameState.players.length;
+    
+    if (connected === 0) {
+      alert('❌ Aucun joueur connecté. Impossible de démarrer.');
+      return;
+    }
+
+    console.log('📤 this.localBacklog:', this.localBacklog);
+
+    // ✅ EXTRAIRE LA MÉTADATA
+    const metadata = this.localBacklog.metadata || {};
+    const tasks = this.localBacklog.tasks || this.localBacklog;
+
+    // ✅ DÉFINIR LE SESSION CODE
+    this.sessionCode = metadata.sessionCode;
+    console.log(`✅ sessionCode défini: ${this.sessionCode}`);
+
+    // ✅ CRÉER LA SESSION D'ABORD
+    fetch(`${window.location.protocol}//${window.location.hostname}:3000/api/create-session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionCode: this.sessionCode,
+        creatorName: this.creatorName,
+        gameMode: metadata.gameMode || this.gameMode,
+        backlog: tasks,
+        completedTasks: metadata.completedTasks || [],
+        taskEstimates: metadata.taskEstimates || {},
+        currentTaskIndex: metadata.currentTaskIndex || 0,
+        currentTaskRound: metadata.currentTaskRound || 1
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log('✅ Session créée:', data);
+      
+      // ✅ NE PAS ENVOYER LOAD-BACKLOG IMMÉDIATEMENT
+      // On va attendre que les joueurs se connectent via join-session
+      // et ENSUITE envoyer load-backlog
+      
+      // Utilise un listener pour savoir quand les joueurs sont prêts
+      this.socket.once('players-ready', () => {
+        console.log('✅ Tous les joueurs sont prêts, envoi du backlog');
+        
+        this.socket.emit('load-backlog', {
+          sessionCode: this.sessionCode,
+          backlog: tasks,
+          isRestored: false,
+          completedTasks: metadata.completedTasks || [],
+          taskEstimates: metadata.taskEstimates || {},
+          currentTaskVotes: metadata.currentTaskVotes || {},
+          currentTaskIndex: metadata.currentTaskIndex || 0,
+          currentTaskRound: metadata.currentTaskRound || 1
+        });
+      });
+
+      // Envoyer le backlog après 3 secondes si on attend trop
+      setTimeout(() => {
+        this.socket.emit('load-backlog', {
+          sessionCode: this.sessionCode,
+          backlog: tasks,
+          isRestored: false,
+          completedTasks: metadata.completedTasks || [],
+          taskEstimates: metadata.taskEstimates || {},
+          currentTaskVotes: metadata.currentTaskVotes || {},
+          currentTaskIndex: metadata.currentTaskIndex || 0,
+          currentTaskRound: metadata.currentTaskRound || 1
+        });
+        console.log('✅ Timeout: load-backlog envoyé malgré tout');
+      }, 3000);
+
+    })
+    .catch(error => {
+      console.error('❌ Erreur lors de la création de session:', error);
+      alert('❌ Erreur: Impossible de créer la session');
+    });
+  }
+
+
+  /**
+   * Attache le gestionnaire d'upload de fichier de session restaurée
+   * 
+   * Configure le listener sur l'input file du DOM pour
+   * permettre l'upload et le parsing de fichiers de session JSON
+   * 
+   * @function attachFileHandler
+   * @returns {void}
+   * 
+   * @description
+   * - Récupère l'élément input file #resumeFile du DOM
+   * - Attache un listener d'événement 'change'
+   * - Lit et parse le fichier JSON
+   * - Stocke l'intégralité du fichier dans this.localBacklog
+   * - Affiche un message de statut
+   */
+  attachFileHandler() {
+    const fileInput = document.getElementById('resumeFile');
+    
+    if (!fileInput) {
+      console.warn('❌ Pas de resumeFile trouvé');
+      return;
+    }
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target.result);
+          console.log('📄 Fichier JSON chargé complètement:', data);
+          
+          // ✅ Stocker le FICHIER ENTIER (metadata + tasks)
+          this.localBacklog = data;
+          
+          console.log('✅ this.localBacklog stocké:', this.localBacklog);
+          console.log('✅ Tasks dans localBacklog:', this.localBacklog.tasks);
+          
+          const status = document.getElementById('resumeFileStatus');
+          if (status) {
+            const taskCount = data.tasks ? data.tasks.length : 0;
+            status.textContent = `✅ ${taskCount} tâches chargées`;
+          }
+        } catch (error) {
+          console.error('❌ Erreur parsing JSON:', error);
+          const status = document.getElementById('resumeFileStatus');
+          if (status) status.textContent = '❌ Format JSON invalide';
+        }
+      };
+      reader.readAsText(file);
+    });
+  }
+
+}
+
+
+/**
+ * Exporte l'instance singleton du client PlanningPokerClient
+ * 
+ * @exports app
+ * 
+ * @example
+ * import { app } from './core/PlanningPokerClient.js';
+ * app.showMenuScreen();
+ */
+export const app = new PlanningPokerClient();
+window.app = app; // Garde la compatibilité avec le code HTML existant</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>

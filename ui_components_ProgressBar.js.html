@@ -1,0 +1,162 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> ui/components/ProgressBar.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-CardGrid.html">CardGrid</a></li><li><a href="module-ConnectionStatus.html">ConnectionStatus</a></li><li><a href="module-GameState.html">GameState</a></li><li><a href="module-PlanningPokerClient.html">PlanningPokerClient</a></li><li><a href="module-PlayerList.html">PlayerList</a></li><li><a href="module-ProgressBar.html">ProgressBar</a></li><li><a href="module-SocketHandlers.html">SocketHandlers</a></li><li><a href="module-Validations.html">Validations</a></li><li><a href="module-WaitingPlayers.html">WaitingPlayers</a></li><li><a href="module-app.html">app</a></li></ul><h3>Classes</h3><ul><li><a href="module-PlanningPokerClient-PlanningPokerClient.html">PlanningPokerClient</a></li></ul><h3>Events</h3><ul><li><a href="module-SocketHandlers.html#~event:backlog-loaded">backlog-loaded</a></li><li><a href="module-SocketHandlers.html#~event:coffee-break">coffee-break</a></li><li><a href="module-SocketHandlers.html#~event:connect">connect</a></li><li><a href="module-SocketHandlers.html#~event:disconnect">disconnect</a></li><li><a href="module-SocketHandlers.html#~event:error">error</a></li><li><a href="module-SocketHandlers.html#~event:game-over">game-over</a></li><li><a href="module-SocketHandlers.html#~event:new-round">new-round</a></li><li><a href="module-SocketHandlers.html#~event:next-task">next-task</a></li><li><a href="module-SocketHandlers.html#~event:player-joined">player-joined</a></li><li><a href="module-SocketHandlers.html#~event:player-left">player-left</a></li><li><a href="module-SocketHandlers.html#~event:session-info">session-info</a></li><li><a href="module-SocketHandlers.html#~event:show-results">show-results</a></li><li><a href="module-SocketHandlers.html#~event:vote-status">vote-status</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>ui/components/ProgressBar.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @fileoverview Composant ProgressBar - Barre de progression des votes
+ * @module ProgressBar
+ * @version 1.0.0
+ * 
+ * @description
+ * Composant qui affiche une barre de progression visuelle indiquant
+ * le pourcentage de joueurs ayant voté.
+ */
+
+/**
+ * Met à jour la barre de progression des votes
+ * 
+ * Calcule le pourcentage de joueurs ayant voté et met à jour
+ * l'affichage de la barre et du texte de statut.
+ * 
+ * @function updateProgressBar
+ * @param {Array&lt;Object>} players - Liste des joueurs
+ * @param {boolean} players[].hasVoted - Indique si le joueur a voté
+ * @returns {void}
+ * 
+ * @description
+ * Processus:
+ * - Compte les joueurs avec hasVoted = true
+ * - Calcule le pourcentage: (voted / total) * 100
+ * - Met à jour le texte: "X / Y joueurs ont voté"
+ * - Met à jour la largeur de la barre de progression en pourcentage
+ * 
+ * @example
+ * import { updateProgressBar } from '../components/ProgressBar.js'
+ * 
+ * const players = [
+ *   { name: 'Alice', hasVoted: true },
+ *   { name: 'Bob', hasVoted: false },
+ *   { name: 'Charlie', hasVoted: true }
+ * ]
+ * updateProgressBar(players)
+ * // Affiche: "2 / 3 joueurs ont voté" et barre à 66%
+ */
+export function updateProgressBar(players) {
+  const voted = players.filter(p => p.hasVoted).length;
+  const total = players.length;
+  const percentage = total > 0 ? (voted / total) * 100 : 0;
+  document.getElementById('votingStatus').textContent = `${voted} / ${total} joueurs ont voté`;
+  document.getElementById('progressBar').style.width = percentage + '%';
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>

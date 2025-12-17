@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> WaitingPlayers</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-CardGrid.html">CardGrid</a></li><li><a href="module-ConnectionStatus.html">ConnectionStatus</a></li><li><a href="module-GameState.html">GameState</a></li><li><a href="module-PlanningPokerClient.html">PlanningPokerClient</a></li><li><a href="module-PlayerList.html">PlayerList</a></li><li><a href="module-ProgressBar.html">ProgressBar</a></li><li><a href="module-SocketHandlers.html">SocketHandlers</a></li><li><a href="module-Validations.html">Validations</a></li><li><a href="module-WaitingPlayers.html">WaitingPlayers</a></li><li><a href="module-app.html">app</a></li></ul><h3>Classes</h3><ul><li><a href="module-PlanningPokerClient-PlanningPokerClient.html">PlanningPokerClient</a></li></ul><h3>Events</h3><ul><li><a href="module-SocketHandlers.html#~event:backlog-loaded">backlog-loaded</a></li><li><a href="module-SocketHandlers.html#~event:coffee-break">coffee-break</a></li><li><a href="module-SocketHandlers.html#~event:connect">connect</a></li><li><a href="module-SocketHandlers.html#~event:disconnect">disconnect</a></li><li><a href="module-SocketHandlers.html#~event:error">error</a></li><li><a href="module-SocketHandlers.html#~event:game-over">game-over</a></li><li><a href="module-SocketHandlers.html#~event:new-round">new-round</a></li><li><a href="module-SocketHandlers.html#~event:next-task">next-task</a></li><li><a href="module-SocketHandlers.html#~event:player-joined">player-joined</a></li><li><a href="module-SocketHandlers.html#~event:player-left">player-left</a></li><li><a href="module-SocketHandlers.html#~event:session-info">session-info</a></li><li><a href="module-SocketHandlers.html#~event:show-results">show-results</a></li><li><a href="module-SocketHandlers.html#~event:vote-status">vote-status</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Module</p>
+                    <h1>WaitingPlayers</h1>
+                </header>
+                
+
+
+
+
+<section>
+
+<header>
+    
+        
+            
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Composant qui affiche la liste des joueurs connectés et prêts.
+Affiche un message si aucun joueur n'est présent.</p></div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-version">Version:</dt>
+    <dd class="tag-version"><ul class="dummy"><li>1.0.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="ui_components_WaitingPlayers.js.html" class="button">View Source</a>
+            <span>
+                <a href="ui_components_WaitingPlayers.js.html">ui/components/WaitingPlayers.js</a>, <a href="ui_components_WaitingPlayers.js.html#line1">line 1</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+    </div>
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Methods</h1>
+            <div class="members">
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="~renderWaitingPlayers">
+        <a class="href-link" href="#~renderWaitingPlayers">#</a>
+        
+            
+                <span class='tag'>inner</span>
+            
+        
+        <span class="code-name">
+            
+                renderWaitingPlayers<span class="signature">(players)</span><span class="type-signature"> &rarr; {void}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Processus:</p>
+<ul>
+<li>Récupère le conteneur #waitingPlayers</li>
+<li>Vide le conteneur des joueurs précédents</li>
+<li>Si aucun joueur:
+<ul>
+<li>Affiche &quot;En attente de joueurs...&quot;</li>
+<li>Retour</li>
+</ul>
+</li>
+<li>Sinon pour chaque joueur:
+<ul>
+<li>Crée une div waiting-player</li>
+<li>Affiche &quot;✓ NomJoueur&quot; dans waiting-player-name</li>
+<li>Affiche &quot;Connecté et prêt&quot; dans waiting-info</li>
+</ul>
+</li>
+</ul>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>players</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">Array.&lt;Object></code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Liste des joueurs connectés</p></td>
+</tr>
+
+  
+  
+    
+<tr class="deep-level-1">
+  
+      <td class="name"><code>name</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Nom du joueur</p></td>
+</tr>
+
+  
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="ui_components_WaitingPlayers.js.html" class="button">View Source</a>
+            <span>
+                <a href="ui_components_WaitingPlayers.js.html">ui/components/WaitingPlayers.js</a>, <a href="ui_components_WaitingPlayers.js.html#line11">line 11</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">void</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>import { renderWaitingPlayers } from '../components/WaitingPlayers.js'
+
+const players = [
+  { name: 'Alice' },
+  { name: 'Bob' },
+  { name: 'Charlie' }
+]
+renderWaitingPlayers(players)
+// Affiche 3 joueurs avec checkmark
+
+// Ou avec liste vide:
+renderWaitingPlayers([])
+// Affiche "En attente de joueurs..."</code></pre>
+    
+
+
+</div>
+            
+            </div>
+        </div>
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>
